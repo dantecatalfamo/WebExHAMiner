@@ -1,8 +1,63 @@
-const fs = require('fs');
+// const fs = require('fs');
+
+const fileInput = document.getElementById("fileInput");
+const fileError = document.getElementById("fileError");
+const questionSection = document.getElementById("questionSection");
+const questionId = document.getElementById("questionId");
+const questionText = document.getElementById("questionText");
+const answerA = document.getElementById("answerA");
+const answerB = document.getElementById("answerB");
+const answerC = document.getElementById("answerC");
+const answerD = document.getElementById("answerD");
+const reason = document.getElementById("reason");
+const answerEls = [answerA, answerB, answerC, answerD];
+
+let allQuestions = null;
+
+fileInput.addEventListener('change', handleFileInput);
+answerEls.forEach(answerEl => answerEl.addEventListener('click', handleAnswerClick));
+
+async function handleFileInput(event) {
+  try {
+    const file = event.target.files[0];
+    const text = await file.text();
+    const parsedQuestions = parseQuestions(text);
+    allQuestions = parsedQuestions;
+    window.questions = allQuestions;
+    setQuestion(allQuestions.sections[0].questions[0]);
+  } catch (e) {
+    console.error(`Unable to load questions: ${e}`);
+    fileError.innerText = "Unable to load questions";
+  }
+}
+
+function handleAnswerClick(event) {
+  event.target.style.backgroundColor = "var(--bg-selected)";
+  answerEls.forEach(answerEl => {
+    if (answerEl.dataset.correct) {
+      answerEl.style.backgroundColor = "var(--bg-correct)";
+    }
+  });
+}
+
+function setQuestion(question) {
+  questionId.innerText = question.id;
+  questionText.innerText = question.text;
+  answerA.innerText = question.options.a;
+  answerB.innerText = question.options.b;
+  answerC.innerText = question.options.c;
+  answerD.innerText = question.options.d;
+  reason.innerText = question.reason;
+  answerEls.forEach(answerEl => answerEl.style = {});
+  answerA.dataset.correct = question.answer == "A" ? "true" : "";
+  answerB.dataset.correct = question.answer == "B" ? "true" : "";
+  answerC.dataset.correct = question.answer == "C" ? "true" : "";
+  answerD.dataset.correct = question.answer == "D" ? "true" : "";
+}
 
 function parseQuestions(fileText) {
   // Replace windows newlines and strip comments
-  const contents = raw_contents.replace(/\r/g, "").replace(/^'.*$/gm, '').trim();
+  const contents = fileText.replace(/\r/g, "").replace(/^'.*$/gm, '').trim();
   const header = contents.match(/^\^.*$/m)[0];
   const header_split = header.split("^");
   const answer_designation = header_split[4];
@@ -47,10 +102,11 @@ function parseQuestions(fileText) {
       question.id = question_id;
       question.answer = question_answer;
       question.text = question_text;
-      question.a = answer_a;
-      question.b = answer_b;
-      question.c = answer_c;
-      question.d = answer_d;
+      question.options = {};
+      question.options.a = answer_a;
+      question.options.b = answer_b;
+      question.options.c = answer_c;
+      question.options.d = answer_d;
       question.reason = reason;
 
       section.questions.push(question);
@@ -63,5 +119,5 @@ function parseQuestions(fileText) {
 }
 
 // Questions from https://www.rac.ca/exhaminer-v2-5/
-const raw_contents = fs.readFileSync('Questions_Basic.txt').toString();
-console.log(JSON.stringify(parseQuestions(raw_contents)));
+// const raw_contents = fs.readFileSync('Questions_Basic.txt').toString();
+// console.log(JSON.stringify(parseQuestions(raw_contents)));

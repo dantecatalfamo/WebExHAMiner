@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>WebExHAMiner</title>
+    <link href="style.css" rel="stylesheet"/>
+  </head>
+  <body>
+    <div class="container">
+      <h1>WebExHAMiner 📡</h1>
+      <div id="statusBar">
+        <div class="file">
+          <input id="fileInput" type="file" accept=".txt" />
+          <div id="fileError" class="file-error"></div>
+        </div>
+      </div>
+      <div id="workArea">
+        <div class="question">
+          <span id="questionSection">L01</span>
+          <span id="questionId">B-1-3-9</span>:
+          <span id="questionText">Why is this a question?</span>
+        </div>
+        <div class="answers">
+          <button type="button" id="answerA" class="answer">Test answer A</button>
+          <button type="button" id="answerB" class="answer"></button>
+          <button type="button" id="answerC" class="answer"></button>
+          <button type="button" id="answerD" class="answer"></button>
+        </div>
+        <div id="reason"></div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
