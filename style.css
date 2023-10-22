@@ -63,30 +63,37 @@ h1 {
   cursor: pointer;
 }
 
-.answer:hover {
+.answer:disabled {
+  color: inherit;
+}
+
+.answer:not(:disabled):hover {
   bottom: 3px;
   box-shadow: 0 3px 2px #80808036;
 }
 
-.answer:active {
+.answer:not(:disabled):active {
   bottom: 0;
   box-shadow: 0 0 0;
 }
 
 .answer::before {
-  margin-right: 10px;
+  margin-right: 5px;
   margin-left: 5px;
 }
 
 #answerA::before {
   content: 'A)';
 }
+
 #answerB::before {
   content: 'B)';
 }
+
 #answerC::before {
   content: 'C)';
 }
+
 #answerD::before {
   content: 'D)';
 }
@@ -97,4 +104,10 @@ h1 {
   border-radius: 3px;
   background-color: var(--bg-reason);
   display: none;
+}
+
+.nav {
+  display: flex;
+  margin: 5px;
+  justify-content: space-between;
 }

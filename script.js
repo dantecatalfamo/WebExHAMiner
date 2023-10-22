@@ -1,8 +1,8 @@
-// const fs = require('fs');
+'ues strict';
 
 const fileInput = document.getElementById("fileInput");
 const fileError = document.getElementById("fileError");
-const questionSection = document.getElementById("questionSection");
+// const questionSection = document.getElementById("questionSection");
 const questionId = document.getElementById("questionId");
 const questionText = document.getElementById("questionText");
 const answerA = document.getElementById("answerA");
@@ -10,21 +10,29 @@ const answerB = document.getElementById("answerB");
 const answerC = document.getElementById("answerC");
 const answerD = document.getElementById("answerD");
 const reason = document.getElementById("reason");
+const previousButton = document.getElementById("previous");
+const nextButton = document.getElementById("next");
 const answerEls = [answerA, answerB, answerC, answerD];
 
 let allQuestions = null;
+let examQuestions = [];
+let questionHistory = [];
+let questionHistoryIndex = -1;
 
 fileInput.addEventListener('change', handleFileInput);
 answerEls.forEach(answerEl => answerEl.addEventListener('click', handleAnswerClick));
+nextButton.addEventListener('click', nextQuestion);
+previousButton.addEventListener('click', previousQuestion);
 
 async function handleFileInput(event) {
   try {
     const file = event.target.files[0];
     const text = await file.text();
-    const parsedQuestions = parseQuestions(text);
-    allQuestions = parsedQuestions;
-    window.questions = allQuestions;
-    setQuestion(allQuestions.sections[0].questions[0]);
+    allQuestions = parseQuestions(text);
+    allQuestions.sections.forEach(section => {
+      examQuestions = examQuestions.concat(section.questions);
+    });
+    nextQuestion();
   } catch (e) {
     console.error(`Unable to load questions: ${e}`);
     fileError.innerText = "Unable to load questions";
@@ -34,10 +42,35 @@ async function handleFileInput(event) {
 function handleAnswerClick(event) {
   event.target.style.backgroundColor = "var(--bg-selected)";
   answerEls.forEach(answerEl => {
+    answerEl.disabled = true;
     if (answerEl.dataset.correct) {
       answerEl.style.backgroundColor = "var(--bg-correct)";
     }
   });
+  reason.style.display = "block";
+  questionHistory[questionHistoryIndex].selected = event.target.dataset.option;
+}
+
+function nextQuestion() {
+  if (questionHistoryIndex == questionHistory.length - 1) {
+    questionHistory.push(examQuestions.shift());
+    questionHistoryIndex++;
+  } else {
+    questionHistoryIndex++;
+  }
+  displayQuestion();
+}
+
+function previousQuestion() {
+  if (questionHistoryIndex > 0) {
+    questionHistoryIndex--;
+    displayQuestion();
+  }
+}
+
+function displayQuestion() {
+  const q = questionHistory[questionHistoryIndex];
+  setQuestion(q);
 }
 
 function setQuestion(question) {
@@ -48,11 +81,30 @@ function setQuestion(question) {
   answerC.innerText = question.options.c;
   answerD.innerText = question.options.d;
   reason.innerText = question.reason;
-  answerEls.forEach(answerEl => answerEl.style = {});
-  answerA.dataset.correct = question.answer == "A" ? "true" : "";
-  answerB.dataset.correct = question.answer == "B" ? "true" : "";
-  answerC.dataset.correct = question.answer == "C" ? "true" : "";
-  answerD.dataset.correct = question.answer == "D" ? "true" : "";
+  answerEls.forEach(answerEl => {
+    answerEl.style = {};
+    answerEl.disabled = false;
+    if (answerEl.dataset.option == question.answer) {
+      answerEl.dataset.correct = "true";
+    } else {
+      answerEl.dataset.correct = "";
+    }
+  });
+  reason.style.display = "none";
+
+  // Already answered
+  if (question.selected) {
+    answerEls.forEach(answerEl => {
+      answerEl.disabled = true;
+      if (answerEl.dataset.option == question.answer) {
+        answerEl.style.backgroundColor = "var(--bg-selected)";
+      }
+      if (answerEl.dataset.correct) {
+        answerEl.style.backgroundColor = "var(--bg-correct)";
+      }
+    });
+    reason.style.display = "block";
+  }
 }
 
 function parseQuestions(fileText) {
@@ -107,6 +159,7 @@ function parseQuestions(fileText) {
       question.options.b = answer_b;
       question.options.c = answer_c;
       question.options.d = answer_d;
+      question.selected = null;
       question.reason = reason;
 
       section.questions.push(question);
@@ -119,5 +172,3 @@ function parseQuestions(fileText) {
 }
 
 // Questions from https://www.rac.ca/exhaminer-v2-5/
-// const raw_contents = fs.readFileSync('Questions_Basic.txt').toString();
-// console.log(JSON.stringify(parseQuestions(raw_contents)));

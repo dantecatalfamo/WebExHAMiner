@@ -6,26 +6,35 @@
   </head>
   <body>
     <div class="container">
-      <h1>WebExHAMiner 📡</h1>
+      <h1>WebExHAMiner</h1>
       <div id="statusBar">
         <div class="file">
           <input id="fileInput" type="file" accept=".txt" />
           <div id="fileError" class="file-error"></div>
         </div>
+        <div class="score">
+          <div id="correct"></div>
+          <div id="incorrect"></div>
+          <div id="unanswered"></div>
+        </div>
       </div>
       <div id="workArea">
         <div class="question">
-          <span id="questionSection">L01</span>
-          <span id="questionId">B-1-3-9</span>:
-          <span id="questionText">Why is this a question?</span>
+          <!-- <span id="questionSection">L01</span> -->
+          <span id="questionId">Attention</span>:
+          <span id="questionText">Please load questions file</span>
         </div>
         <div class="answers">
-          <button type="button" id="answerA" class="answer">Test answer A</button>
-          <button type="button" id="answerB" class="answer"></button>
-          <button type="button" id="answerC" class="answer"></button>
-          <button type="button" id="answerD" class="answer"></button>
+          <button type="button" id="answerA" class="answer" data-option="A" disabled></button>
+          <button type="button" id="answerB" class="answer" data-option="B" disabled></button>
+          <button type="button" id="answerC" class="answer" data-option="C" disabled></button>
+          <button type="button" id="answerD" class="answer" data-option="D" disabled></button>
         </div>
         <div id="reason"></div>
+        <div class="nav">
+          <button type="button" id="previous">Previous</button>
+          <button type="button" id="next">Next</button>
+        </div>
       </div>
     </div>
     <script src="script.js"></script>
