@@ -13,11 +13,18 @@ const reason = document.getElementById("reason");
 const previousButton = document.getElementById("previous");
 const nextButton = document.getElementById("next");
 const answerEls = [answerA, answerB, answerC, answerD];
+const correntEl = document.getElementById("correctValue");
+const incorrentEl = document.getElementById("incorrectValue");
+const unansweredEl = document.getElementById("unansweredValue");
+const scoreEl = document.getElementById("scoreValue");
 
 let allQuestions = null;
 let examQuestions = [];
 let questionHistory = [];
 let questionHistoryIndex = -1;
+let correctAnswers = 0;
+let incorrectAnswers = 0;
+let questionsLeft = 0;
 
 fileInput.addEventListener('change', handleFileInput);
 answerEls.forEach(answerEl => answerEl.addEventListener('click', handleAnswerClick));
@@ -32,6 +39,7 @@ async function handleFileInput(event) {
     allQuestions.sections.forEach(section => {
       examQuestions = examQuestions.concat(section.questions);
     });
+    questionsLeft = examQuestions.length;
     nextQuestion();
   } catch (e) {
     console.error(`Unable to load questions: ${e}`);
@@ -41,6 +49,12 @@ async function handleFileInput(event) {
 
 function handleAnswerClick(event) {
   event.target.style.backgroundColor = "var(--bg-selected)";
+  if (event.target.dataset.correct) {
+    correctAnswers++;
+  } else {
+    incorrectAnswers++;
+  }
+  questionsLeft--;
   answerEls.forEach(answerEl => {
     answerEl.disabled = true;
     if (answerEl.dataset.correct) {
@@ -52,7 +66,9 @@ function handleAnswerClick(event) {
 }
 
 function nextQuestion() {
-  if (questionHistoryIndex == questionHistory.length - 1) {
+  if (examQuestions.length == 0) {
+    // score
+  } else if (questionHistoryIndex == questionHistory.length - 1) {
     questionHistory.push(examQuestions.shift());
     questionHistoryIndex++;
   } else {
@@ -70,7 +86,8 @@ function previousQuestion() {
 
 function displayQuestion() {
   const q = questionHistory[questionHistoryIndex];
-  setQuestion(q);
+  if (q)
+    setQuestion(q);
 }
 
 function setQuestion(question) {

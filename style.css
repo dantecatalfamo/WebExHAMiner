@@ -33,6 +33,29 @@ h1 {
   margin-bottom: 10px;
   background-color: var(--bg-main);
   border-radius: 3px;
+  display: flex;
+  justify-content: space-between;
+}
+
+#scoreArea {
+  display: flex;
+}
+
+.score {
+  margin-left: 5px;
+  text-align: center;
+  padding: 5px;
+  border: 1px solid gray;
+  border-radius: 3px;
+}
+
+.score-title {
+}
+
+.score-correct {
+}
+
+.score-incorrect {
 }
 
 #workArea {

@@ -12,10 +12,23 @@
           <input id="fileInput" type="file" accept=".txt" />
           <div id="fileError" class="file-error"></div>
         </div>
-        <div class="score">
-          <div id="correct"></div>
-          <div id="incorrect"></div>
-          <div id="unanswered"></div>
+        <div id="scoreArea">
+          <div class="score score-correct">
+            <div class="score-title">Correct</div>
+            <span id="correctValue">0</span>
+          </div>
+          <div class="score score-incorrect">
+            <div class="score-title">Incorrect</div>
+            <span id="incorrectValue">0</span>
+          </div>
+          <div class="score score-unanswered">
+            <div class="score-title">Unanswered</div>
+            <span id="unansweredValue">0</span>
+          </div>
+          <div class="score score-score"">
+            <div class="score-title">Score</div>
+            <span id="scoreValue">0</span>
+          </div>
         </div>
       </div>
       <div id="workArea">
