@@ -13,18 +13,16 @@ const reason = document.getElementById("reason");
 const previousButton = document.getElementById("previous");
 const nextButton = document.getElementById("next");
 const answerEls = [answerA, answerB, answerC, answerD];
-const correntEl = document.getElementById("correctValue");
-const incorrentEl = document.getElementById("incorrectValue");
-const unansweredEl = document.getElementById("unansweredValue");
-const scoreEl = document.getElementById("scoreValue");
+const correctValue = document.getElementById("correctValue");
+const incorrectValue = document.getElementById("incorrectValue");
+const unansweredValue = document.getElementById("unansweredValue");
+const scoreValue = document.getElementById("scoreValue");
 
 let allQuestions = null;
-let examQuestions = [];
 let questionHistory = [];
 let questionHistoryIndex = -1;
 let correctAnswers = 0;
 let incorrectAnswers = 0;
-let questionsLeft = 0;
 
 fileInput.addEventListener('change', handleFileInput);
 answerEls.forEach(answerEl => answerEl.addEventListener('click', handleAnswerClick));
@@ -37,9 +35,8 @@ async function handleFileInput(event) {
     const text = await file.text();
     allQuestions = parseQuestions(text);
     allQuestions.sections.forEach(section => {
-      examQuestions = examQuestions.concat(section.questions);
+      questionHistory = questionHistory.concat(section.questions);
     });
-    questionsLeft = examQuestions.length;
     nextQuestion();
   } catch (e) {
     console.error(`Unable to load questions: ${e}`);
@@ -48,33 +45,21 @@ async function handleFileInput(event) {
 }
 
 function handleAnswerClick(event) {
-  event.target.style.backgroundColor = "var(--bg-selected)";
-  if (event.target.dataset.correct) {
+  const question = questionHistory[questionHistoryIndex];
+  question.selected = event.target.dataset.option;
+  if (question.selected == question.answer) {
     correctAnswers++;
   } else {
     incorrectAnswers++;
   }
-  questionsLeft--;
-  answerEls.forEach(answerEl => {
-    answerEl.disabled = true;
-    if (answerEl.dataset.correct) {
-      answerEl.style.backgroundColor = "var(--bg-correct)";
-    }
-  });
-  reason.style.display = "block";
-  questionHistory[questionHistoryIndex].selected = event.target.dataset.option;
+  displayQuestion();
 }
 
 function nextQuestion() {
-  if (examQuestions.length == 0) {
-    // score
-  } else if (questionHistoryIndex == questionHistory.length - 1) {
-    questionHistory.push(examQuestions.shift());
+  if (questionHistoryIndex < questionHistory.length) {
     questionHistoryIndex++;
-  } else {
-    questionHistoryIndex++;
+    displayQuestion();
   }
-  displayQuestion();
 }
 
 function previousQuestion() {
@@ -91,6 +76,11 @@ function displayQuestion() {
 }
 
 function setQuestion(question) {
+  correctValue.innerText = correctAnswers;
+  incorrectValue.innerText = incorrectAnswers;
+  unansweredValue.innerText = questionHistory.length - correctAnswers - incorrectAnswers;
+  const scoreFloat = correctAnswers / (correctAnswers + incorrectAnswers);
+  scoreValue.innerText = `${(scoreFloat || 0).toFixed()}%`;
   questionId.innerText = question.id;
   questionText.innerText = question.text;
   answerA.innerText = question.options.a;
@@ -101,11 +91,6 @@ function setQuestion(question) {
   answerEls.forEach(answerEl => {
     answerEl.style = {};
     answerEl.disabled = false;
-    if (answerEl.dataset.option == question.answer) {
-      answerEl.dataset.correct = "true";
-    } else {
-      answerEl.dataset.correct = "";
-    }
   });
   reason.style.display = "none";
 
@@ -113,10 +98,10 @@ function setQuestion(question) {
   if (question.selected) {
     answerEls.forEach(answerEl => {
       answerEl.disabled = true;
-      if (answerEl.dataset.option == question.answer) {
+      if (answerEl.dataset.option == question.selected) {
         answerEl.style.backgroundColor = "var(--bg-selected)";
       }
-      if (answerEl.dataset.correct) {
+      if (answerEl.dataset.option == question.answer) {
         answerEl.style.backgroundColor = "var(--bg-correct)";
       }
     });
