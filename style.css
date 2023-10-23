@@ -144,3 +144,7 @@ h1 {
   font-size: smaller;
   color: gray;
 }
+
+.copyright > a {
+  color: inherit;
+}
