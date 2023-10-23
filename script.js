@@ -29,11 +29,23 @@ nextButton.addEventListener('click', nextQuestion);
 previousButton.addEventListener('click', previousQuestion);
 
 function selectQuestions(parsedInput) {
-  let questions = [];
+  let allQuestions = [];
   parsedInput.sections.forEach(section => {
-    questions = questions.concat(section.questions);
+    allQuestions = allQuestions.concat(section.questions);
   });
-  return questions;
+  const buckets = {};
+  allQuestions.forEach(question => {
+    var bucketName = `${question.id_parts.type}-${question.id_parts.section.toString().padStart(2, 0)}-${question.id_parts.subsection.toString().padStart(2, 0)}`;
+    buckets[bucketName] ||= [];
+    buckets[bucketName].push(question);
+  });
+  const outputQuestions = [];
+  const bucketKeys = Object.keys(buckets).sort();
+  bucketKeys.forEach(key => {
+    const bucket = buckets[key];
+    outputQuestions.push(bucket[Math.floor(Math.random()*bucket.length)]);
+  });
+  return outputQuestions;
 }
 
 async function handleFileInput(event) {
@@ -158,8 +170,9 @@ function parseQuestions(fileText) {
 
       const id_parts = question_id.split("-");
       const question_type = id_parts[0];
-      const question_stage = parseInt(id_parts[1]);
-      const question_variant = parseInt(id_parts[2]);
+      const question_section = parseInt(id_parts[1]);
+      const question_subsection = parseInt(id_parts[2]);
+      const question_variant = parseInt(id_parts[3]);
 
       const answer_a = body_lines[body_idx * 6 + 1].slice(2);
       const answer_b = body_lines[body_idx * 6 + 2].slice(2);
@@ -170,7 +183,8 @@ function parseQuestions(fileText) {
       question.id = question_id;
       question.id_parts = {};
       question.id_parts.type = question_type;
-      question.id_parts.stage = question_stage;
+      question.id_parts.section = question_section;
+      question.id_parts.subsection = question_subsection;
       question.id_parts.variant = question_variant;
       question.answer = question_answer;
       question.text = question_text;
