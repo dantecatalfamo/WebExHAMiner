@@ -17,6 +17,7 @@
 'ues strict';
 
 const fileInput = document.getElementById("fileInput");
+const resetButton = document.getElementById("reset");
 const fileError = document.getElementById("fileError");
 const questionId = document.getElementById("questionId");
 const questionText = document.getElementById("questionText");
@@ -40,9 +41,43 @@ let incorrectAnswers = 0;
 let passingMark = 0;
 
 fileInput.addEventListener('change', handleFileInput);
+resetButton.addEventListener('click', reset);
 answerEls.forEach(answerEl => answerEl.addEventListener('click', handleAnswerClick));
 nextButton.addEventListener('click', nextQuestion);
 previousButton.addEventListener('click', previousQuestion);
+
+if (localStorage["questionHistory"]) {
+  questionHistory = JSON.parse(localStorage["questionHistory"]);
+  questionHistoryIndex = JSON.parse(localStorage["questionHistoryIndex"]);
+  questionHistory.forEach(question => {
+    if (question.selected == null) {
+      return;
+    }
+    if (question.selected == question.answer) {
+      correctAnswers++;
+    } else {
+      incorrectAnswers++;
+    }
+  });
+  if (questionHistory && questionHistory.length != 0) {
+    displayQuestion();
+  }
+}
+
+function reset() {
+  if (!confirm("Reset exam?")) {
+    return;
+  }
+  questionHistory = [];
+  questionHistoryIndex = -1;
+  correctAnswers = 0;
+  incorrectAnswers = 0;
+  passingMark = 0;
+  fileError.innerText = "";
+  localStorage.removeItem("questionHistory");
+  localStorage.removeItem("questionHistoryIndex");
+  location.reload();
+}
 
 function selectQuestions(parsedInput) {
   let allQuestions = [];
@@ -72,8 +107,10 @@ async function handleFileInput(event) {
     const parsedInput = parseQuestions(text);
     passingMark = parsedInput.pass_mark;
     questionHistory = selectQuestions(parsedInput);
-    questionHistoryIndex = -1;
-    nextQuestion();
+    questionHistoryIndex = 0;
+    correctAnswers = 0;
+    incorrectAnswers = 0;
+    displayQuestion();
   } catch (e) {
     console.error(`Unable to load questions: ${e}`);
     fileError.innerText = "Unable to load questions";
@@ -107,9 +144,10 @@ function previousQuestion() {
 }
 
 function displayQuestion() {
-  const q = questionHistory[questionHistoryIndex];
-  if (q)
-    setQuestion(q);
+  const question = questionHistory[questionHistoryIndex];
+  localStorage["questionHistory"] = JSON.stringify(questionHistory);
+  localStorage["questionHistoryIndex"] = questionHistoryIndex;
+  setQuestion(question);
 }
 
 function setQuestion(question) {
@@ -117,7 +155,7 @@ function setQuestion(question) {
   incorrectValue.innerText = incorrectAnswers;
   unansweredValue.innerText = questionHistory.length - correctAnswers - incorrectAnswers;
   const scoreFloat = correctAnswers * 100 / (correctAnswers + incorrectAnswers);
-  const passing = scoreFloat > passingMark;
+  const passing = scoreFloat >= passingMark;
   scoreValue.style.color = passing ? "" : "var(--fg-error)";
   scoreValue.innerText = `${(scoreFloat || 0).toFixed()}%`;
   questionId.innerText = question.id;

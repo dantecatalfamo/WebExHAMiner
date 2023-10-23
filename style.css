@@ -24,6 +24,11 @@ h1 {
   border-radius: 3px;
 }
 
+.file-extras {
+  display: flex;
+  gap: 5px;
+}
+
 #fileError {
   color: var(--fg-error);
   margin-top: 5px;
