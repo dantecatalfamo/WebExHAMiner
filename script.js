@@ -37,6 +37,7 @@ let questionHistory = [];
 let questionHistoryIndex = -1;
 let correctAnswers = 0;
 let incorrectAnswers = 0;
+let passingMark = 0;
 
 fileInput.addEventListener('change', handleFileInput);
 answerEls.forEach(answerEl => answerEl.addEventListener('click', handleAnswerClick));
@@ -69,6 +70,7 @@ async function handleFileInput(event) {
     const file = event.target.files[0];
     const text = await file.text();
     const parsedInput = parseQuestions(text);
+    passingMark = parsedInput.pass_mark;
     questionHistory = selectQuestions(parsedInput);
     questionHistoryIndex = -1;
     nextQuestion();
@@ -115,6 +117,8 @@ function setQuestion(question) {
   incorrectValue.innerText = incorrectAnswers;
   unansweredValue.innerText = questionHistory.length - correctAnswers - incorrectAnswers;
   const scoreFloat = correctAnswers * 100 / (correctAnswers + incorrectAnswers);
+  const passing = scoreFloat > passingMark;
+  scoreValue.style.color = passing ? "" : "var(--fg-error)";
   scoreValue.innerText = `${(scoreFloat || 0).toFixed()}%`;
   questionId.innerText = question.id;
   questionText.innerText = question.text;
