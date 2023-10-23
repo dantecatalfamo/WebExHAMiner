@@ -154,10 +154,10 @@ function setQuestion(question) {
   correctValue.innerText = correctAnswers;
   incorrectValue.innerText = incorrectAnswers;
   unansweredValue.innerText = questionHistory.length - correctAnswers - incorrectAnswers;
-  const scoreFloat = correctAnswers * 100 / (correctAnswers + incorrectAnswers);
+  const scoreFloat = (correctAnswers * 100 / (correctAnswers + incorrectAnswers)) || 0;
   const passing = scoreFloat >= passingMark;
   scoreValue.style.color = passing ? "" : "var(--fg-error)";
-  scoreValue.innerText = `${(scoreFloat || 0).toFixed()}%`;
+  scoreValue.innerText = `${scoreFloat.toFixed()}%`;
   questionId.innerText = question.id;
   questionText.innerText = question.text;
   answerA.innerText = question.options.a;
