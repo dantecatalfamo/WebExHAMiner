@@ -9,7 +9,8 @@
       <h1>WebExHAMiner</h1>
       <div id="statusBar">
         <div class="file">
-          <input id="fileInput" type="file" accept=".txt" />
+          <label for="fileInput">Load Questions</label>
+          <input id="fileInput" type="file" accept=".txt"/>
           <div id="fileError" class="file-error"></div>
         </div>
         <div id="scoreArea">
@@ -34,8 +35,8 @@
       <div id="workArea">
         <div class="question">
           <!-- <span id="questionSection">L01</span> -->
-          <span id="questionId">Attention</span>:
-          <span id="questionText">Please load questions file</span>
+          <span id="questionId">Please load question file</span>:
+          <span id="questionText">Available <a href="https://www.rac.ca/exhaminer-v2-5/" target="_blank">here</a></span>
         </div>
         <div class="answers">
           <button type="button" id="answerA" class="answer" data-option="A" disabled></button>
@@ -45,8 +46,8 @@
         </div>
         <div id="reason"></div>
         <div class="nav">
-          <button type="button" id="previous">Previous</button>
-          <button type="button" id="next">Next</button>
+          <button type="button" id="previous" disabled>Previous</button>
+          <button type="button" id="next" disabled>Next</button>
         </div>
       </div>
     </div>

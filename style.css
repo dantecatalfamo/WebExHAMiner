@@ -4,6 +4,7 @@
   --bg-reason: #FFD3A8;  /* #D3FFA8; */
   --bg-correct: #A8FFA8;
   --bg-selected: #A8A8FF;
+  --fg-error: #f00;
 }
 
 html {
@@ -24,7 +25,8 @@ h1 {
 }
 
 #fileError {
-  background-color: #ff000088;
+  color: var(--fg-error);
+  margin-top: 5px;
 }
 
 #statusBar {
@@ -39,10 +41,10 @@ h1 {
 
 #scoreArea {
   display: flex;
+  gap: 5px;
 }
 
 .score {
-  margin-left: 5px;
   text-align: center;
   padding: 5px;
   border: 1px solid gray;

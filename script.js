@@ -18,7 +18,6 @@ const incorrectValue = document.getElementById("incorrectValue");
 const unansweredValue = document.getElementById("unansweredValue");
 const scoreValue = document.getElementById("scoreValue");
 
-let allQuestions = null;
 let questionHistory = [];
 let questionHistoryIndex = -1;
 let correctAnswers = 0;
@@ -29,14 +28,21 @@ answerEls.forEach(answerEl => answerEl.addEventListener('click', handleAnswerCli
 nextButton.addEventListener('click', nextQuestion);
 previousButton.addEventListener('click', previousQuestion);
 
+function selectQuestions(parsedInput) {
+  let questions = [];
+  parsedInput.sections.forEach(section => {
+    questions = questions.concat(section.questions);
+  });
+  return questions;
+}
+
 async function handleFileInput(event) {
+  fileError.innerText = "";
   try {
     const file = event.target.files[0];
     const text = await file.text();
-    allQuestions = parseQuestions(text);
-    allQuestions.sections.forEach(section => {
-      questionHistory = questionHistory.concat(section.questions);
-    });
+    const parsedInput = parseQuestions(text);
+    questionHistory = selectQuestions(parsedInput);
     nextQuestion();
   } catch (e) {
     console.error(`Unable to load questions: ${e}`);
@@ -107,6 +113,9 @@ function setQuestion(question) {
     });
     reason.style.display = "block";
   }
+
+  previousButton.disabled = questionHistoryIndex < 1;
+  nextButton.disabled = questionHistoryIndex >= questionHistory.length - 1;
 }
 
 function parseQuestions(fileText) {
@@ -147,6 +156,11 @@ function parseQuestions(fileText) {
       const question_answer = question_parts[2];
       const question_text = question_parts[3];
 
+      const id_parts = question_id.split("-");
+      const question_type = id_parts[0];
+      const question_stage = parseInt(id_parts[1]);
+      const question_variant = parseInt(id_parts[2]);
+
       const answer_a = body_lines[body_idx * 6 + 1].slice(2);
       const answer_b = body_lines[body_idx * 6 + 2].slice(2);
       const answer_c = body_lines[body_idx * 6 + 3].slice(2);
@@ -154,6 +168,10 @@ function parseQuestions(fileText) {
       const reason = body_lines[body_idx * 6 + 5].slice(2);
 
       question.id = question_id;
+      question.id_parts = {};
+      question.id_parts.type = question_type;
+      question.id_parts.stage = question_stage;
+      question.id_parts.variant = question_variant;
       question.answer = question_answer;
       question.text = question_text;
       question.options = {};
