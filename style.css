@@ -37,6 +37,7 @@ h1 {
   border-radius: 3px;
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 #scoreArea {
@@ -47,11 +48,11 @@ h1 {
 .score {
   text-align: center;
   padding: 5px;
-  border: 1px solid gray;
-  border-radius: 3px;
 }
 
 .score-title {
+  font-size: small;
+  font-weight: bold;
 }
 
 .score-correct {
