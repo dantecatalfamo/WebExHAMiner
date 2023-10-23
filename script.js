@@ -75,6 +75,7 @@ async function handleFileInput(event) {
   } catch (e) {
     console.error(`Unable to load questions: ${e}`);
     fileError.innerText = "Unable to load questions";
+    throw(e);
   }
 }
 
@@ -174,12 +175,16 @@ function parseQuestions(fileText) {
     section.name = section_name;
     section.questions = [];
 
-    const body_lines = section_body.trim().replace("\n\n", "\n").split("\n");
+    const body_lines = section_body.trim().split("\n").filter(line => line.length != 0);
     for (let body_idx = 0; body_idx < body_lines.length / 6; body_idx++) {
       const question = {};
 
       const question_header = body_lines[body_idx * 6];
       const question_parts = question_header.match(/([\w\-]+) \((\w)\) (.*)/);
+      if (!question_parts) {
+        console.log(body_lines.slice(body_idx * 6 - 5, body_idx * 6 + 10));
+        console.log(question_header);
+      }
       const question_id = question_parts[1];
       const question_answer = question_parts[2];
       const question_text = question_parts[3];
