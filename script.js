@@ -65,7 +65,7 @@ if (localStorage["questionHistory"]) {
 }
 
 function reset() {
-  if (!confirm("Reset exam?")) {
+  if (questionHistory.length != 0 && !confirm("Reset exam?")) {
     return;
   }
   questionHistory = [];
