@@ -137,3 +137,10 @@ h1 {
   margin: 5px;
   justify-content: space-between;
 }
+
+.copyright {
+  text-align: center;
+  margin-top: 5px;
+  font-size: smaller;
+  color: gray;
+}
