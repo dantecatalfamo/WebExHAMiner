@@ -18,7 +18,6 @@
 
 const fileInput = document.getElementById("fileInput");
 const fileError = document.getElementById("fileError");
-// const questionSection = document.getElementById("questionSection");
 const questionId = document.getElementById("questionId");
 const questionText = document.getElementById("questionText");
 const answerA = document.getElementById("answerA");
