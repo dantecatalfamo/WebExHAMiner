@@ -98,7 +98,7 @@ function setQuestion(question) {
   correctValue.innerText = correctAnswers;
   incorrectValue.innerText = incorrectAnswers;
   unansweredValue.innerText = questionHistory.length - correctAnswers - incorrectAnswers;
-  const scoreFloat = correctAnswers / (correctAnswers + incorrectAnswers);
+  const scoreFloat = correctAnswers * 100 / (correctAnswers + incorrectAnswers);
   scoreValue.innerText = `${(scoreFloat || 0).toFixed()}%`;
   questionId.innerText = question.id;
   questionText.innerText = question.text;
