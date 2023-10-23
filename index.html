@@ -10,7 +10,7 @@
       <div id="statusBar">
         <div class="file">
           <label for="fileInput">Load Questions</label>
-          <input id="fileInput" type="file" accept=".txt"/>
+          <input id="fileInput" type="file" accept=".txt" autocomplete="off" />
           <div id="fileError" class="file-error"></div>
         </div>
         <div id="scoreArea">
@@ -39,15 +39,15 @@
           <span id="questionText">Available <a href="https://www.rac.ca/exhaminer-v2-5/" target="_blank">here</a></span>
         </div>
         <div class="answers">
-          <button type="button" id="answerA" class="answer" data-option="A" disabled></button>
-          <button type="button" id="answerB" class="answer" data-option="B" disabled></button>
-          <button type="button" id="answerC" class="answer" data-option="C" disabled></button>
-          <button type="button" id="answerD" class="answer" data-option="D" disabled></button>
+          <button type="button" id="answerA" class="answer" data-option="A" disabled autocomplete="off"></button>
+          <button type="button" id="answerB" class="answer" data-option="B" disabled autocomplete="off"></button>
+          <button type="button" id="answerC" class="answer" data-option="C" disabled autocomplete="off"></button>
+          <button type="button" id="answerD" class="answer" data-option="D" disabled autocomplete="off"></button>
         </div>
         <div id="reason"></div>
         <div class="nav">
-          <button type="button" id="previous" disabled>Previous</button>
-          <button type="button" id="next" disabled>Next</button>
+          <button type="button" id="previous" disabled autocomplete="off">Previous</button>
+          <button type="button" id="next" disabled autocomplete="off">Next</button>
         </div>
       </div>
     </div>
