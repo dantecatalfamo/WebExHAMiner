@@ -55,6 +55,7 @@ async function handleFileInput(event) {
     const text = await file.text();
     const parsedInput = parseQuestions(text);
     questionHistory = selectQuestions(parsedInput);
+    questionHistoryIndex = -1;
     nextQuestion();
   } catch (e) {
     console.error(`Unable to load questions: ${e}`);
