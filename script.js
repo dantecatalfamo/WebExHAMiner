@@ -49,6 +49,7 @@ previousButton.addEventListener('click', previousQuestion);
 if (localStorage["questionHistory"]) {
   questionHistory = JSON.parse(localStorage["questionHistory"]);
   questionHistoryIndex = JSON.parse(localStorage["questionHistoryIndex"]);
+  passingMark = JSON.parse(localStorage["passingMark"]);
   questionHistory.forEach(question => {
     if (question.selected == null) {
       return;
@@ -74,6 +75,7 @@ function reset() {
   incorrectAnswers = 0;
   passingMark = 0;
   fileError.innerText = "";
+  localStorage.removeItem("passingMark");
   localStorage.removeItem("questionHistory");
   localStorage.removeItem("questionHistoryIndex");
   location.reload();
@@ -147,13 +149,15 @@ function displayQuestion() {
   const question = questionHistory[questionHistoryIndex];
   localStorage["questionHistory"] = JSON.stringify(questionHistory);
   localStorage["questionHistoryIndex"] = questionHistoryIndex;
+  localStorage["passingMark"] = passingMark;
   setQuestion(question);
 }
 
 function setQuestion(question) {
   correctValue.innerText = correctAnswers;
   incorrectValue.innerText = incorrectAnswers;
-  unansweredValue.innerText = questionHistory.length - correctAnswers - incorrectAnswers;
+  const unansweredQuestions = questionHistory.length - correctAnswers - incorrectAnswers;
+  unansweredValue.innerText = unansweredQuestions == 0 ? "Completed" : unansweredQuestions;
   const scoreFloat = (correctAnswers * 100 / (correctAnswers + incorrectAnswers)) || 0;
   const passing = scoreFloat >= passingMark;
   scoreValue.style.color = passing ? "" : "var(--fg-error)";
