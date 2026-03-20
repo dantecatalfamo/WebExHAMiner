@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Dante Catalfamo
+// Copyright (c) 2026 Dante Catalfamo
 
 // This program is free software: you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -198,7 +198,11 @@ function parseQuestions(fileText) {
   const contents = fileText.replace(/\r/g, "").replace(/^'.*$/gm, '').trim();
   const header = contents.match(/^\^.*$/m)[0];
   const header_split = header.split("^");
-  const answer_designation = header_split[4];
+  const format_version = header_split[5].trim();
+
+  if (format_version !== "V2") {
+    console.error("Questions are not in V2 format")
+  }
 
   const questions = {};
 
@@ -222,18 +226,17 @@ function parseQuestions(fileText) {
     section.questions = [];
 
     const body_lines = section_body.trim().split("\n").filter(line => line.length != 0);
-    for (let body_idx = 0; body_idx < body_lines.length / 6; body_idx++) {
+    for (let body_idx = 0; body_idx < body_lines.length / 7; body_idx++) {
       const question = {};
 
-      const question_header = body_lines[body_idx * 6];
-      const question_parts = question_header.match(/([\w\-]+) \((\w)\) (.*)/);
-      if (!question_parts) {
-        console.log(body_lines.slice(body_idx * 6 - 5, body_idx * 6 + 10));
-        console.log(question_header);
-      }
-      const question_id = question_parts[1];
-      const question_answer = question_parts[2];
-      const question_text = question_parts[3];
+      const question_id = body_lines[body_idx * 7].split(/\s+/)[0];
+      const question_text = body_lines[body_idx * 7 + 1]
+      const answer_correct = body_lines[body_idx * 7 + 2]
+      const answer_other1 = body_lines[body_idx * 7 + 3]
+      const answer_other2 = body_lines[body_idx * 7 + 4]
+      const answer_other3 = body_lines[body_idx * 7 + 5]
+      // Strip "> "
+      const reason = body_lines[body_idx * 7 + 6].slice(2)
 
       const id_parts = question_id.split("-");
       const question_type = id_parts[0];
@@ -241,11 +244,13 @@ function parseQuestions(fileText) {
       const question_subsection = parseInt(id_parts[2]);
       const question_variant = parseInt(id_parts[3]);
 
-      const answer_a = body_lines[body_idx * 6 + 1].slice(2);
-      const answer_b = body_lines[body_idx * 6 + 2].slice(2);
-      const answer_c = body_lines[body_idx * 6 + 3].slice(2);
-      const answer_d = body_lines[body_idx * 6 + 4].slice(2);
-      const reason = body_lines[body_idx * 6 + 5].slice(2);
+      let answer_keys = ["a", "b", "c", "d"]
+      // Shuffle
+      answer_keys = answer_keys.sort(() => Math.random()-0.5);
+      const correct_key = answer_keys.shift()
+      const other1_key = answer_keys.shift()
+      const other2_key = answer_keys.shift()
+      const other3_key = answer_keys.shift()
 
       question.id = question_id;
       question.id_parts = {};
@@ -253,13 +258,13 @@ function parseQuestions(fileText) {
       question.id_parts.section = question_section;
       question.id_parts.subsection = question_subsection;
       question.id_parts.variant = question_variant;
-      question.answer = question_answer;
+      question.answer = correct_key;
       question.text = question_text;
       question.options = {};
-      question.options.a = answer_a;
-      question.options.b = answer_b;
-      question.options.c = answer_c;
-      question.options.d = answer_d;
+      question.options[correct_key] = answer_correct;
+      question.options[other1_key] = answer_other1;
+      question.options[other2_key] = answer_other2;
+      question.options[other3_key] = answer_other3;
       question.selected = null;
       question.reason = reason;
 
