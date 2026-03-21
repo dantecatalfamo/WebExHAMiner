@@ -17,7 +17,11 @@
 'ues strict';
 
 const fileInput = document.getElementById("fileInput");
-const resetButton = document.getElementById("reset");
+const restartButton = document.getElementById("restart")
+const eraseButton = document.getElementById("erase");
+const randomizeButtion = document.getElementById("randomize");
+const buttons = document.getElementById("buttons");
+const fileEl = document.getElementById("file");
 const fileError = document.getElementById("fileError");
 const questionId = document.getElementById("questionId");
 const questionText = document.getElementById("questionText");
@@ -41,7 +45,9 @@ let incorrectAnswers = 0;
 let passingMark = 0;
 
 fileInput.addEventListener('change', handleFileInput);
-resetButton.addEventListener('click', reset);
+restartButton.addEventListener('click', handleRestartExam);
+eraseButton.addEventListener('click', eraseData);
+randomizeButtion.addEventListener('click', randomizeOrder);
 answerEls.forEach(answerEl => answerEl.addEventListener('click', handleAnswerClick));
 nextButton.addEventListener('click', nextQuestion);
 previousButton.addEventListener('click', previousQuestion);
@@ -63,10 +69,13 @@ if (localStorage["questionHistory"]) {
   if (questionHistory && questionHistory.length != 0) {
     displayQuestion();
   }
+} else {
+  fileEl.style.display = undefined;
+  buttons.style.display = "none";
 }
 
-function reset() {
-  if (questionHistory.length != 0 && !confirm("Reset exam?")) {
+function eraseData() {
+  if (questionHistory.length != 0 && !confirm("Erase exam data? This will remove all questions.")) {
     return;
   }
   questionHistory = [];
@@ -78,7 +87,29 @@ function reset() {
   localStorage.removeItem("passingMark");
   localStorage.removeItem("questionHistory");
   localStorage.removeItem("questionHistoryIndex");
+  localStorage.removeItem("parsedInput");
   location.reload();
+}
+
+function handleRestartExam() {
+  if (questionHistory.length != 0 && !confirm("Restart exam?")) {
+    return;
+  }
+  restartExam();
+}
+
+function randomizeOrder() {
+  shuffleArray(questionHistory);
+  questionHistoryIndex = 0;
+  displayQuestion();
+}
+
+// https://stackoverflow.com/a/12646864
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
 }
 
 function selectQuestions(parsedInput) {
@@ -88,7 +119,7 @@ function selectQuestions(parsedInput) {
   });
   const buckets = {};
   allQuestions.forEach(question => {
-    var bucketName = `${question.id_parts.type}-${question.id_parts.section.toString().padStart(2, 0)}-${question.id_parts.subsection.toString().padStart(2, 0)}`;
+    var bucketName = `${question.idParts.type}-${question.idParts.section.toString().padStart(2, 0)}-${question.idParts.subsection.toString().padStart(2, 0)}`;
     buckets[bucketName] ||= [];
     buckets[bucketName].push(question);
   });
@@ -107,17 +138,23 @@ async function handleFileInput(event) {
     const file = event.target.files[0];
     const text = await file.text();
     const parsedInput = parseQuestions(text);
-    passingMark = parsedInput.pass_mark;
-    questionHistory = selectQuestions(parsedInput);
-    questionHistoryIndex = 0;
-    correctAnswers = 0;
-    incorrectAnswers = 0;
-    displayQuestion();
+    passingMark = parsedInput.passMark;
+    localStorage["parsedInput"] = JSON.stringify(parsedInput);
+    restartExam();
   } catch (e) {
     console.error(`Unable to load questions: ${e}`);
     fileError.innerText = "Unable to load questions";
     throw(e);
   }
+}
+
+function restartExam() {
+  const parsedInput = JSON.parse(localStorage["parsedInput"]);
+    questionHistory = selectQuestions(parsedInput);
+    questionHistoryIndex = 0;
+    correctAnswers = 0;
+    incorrectAnswers = 0;
+    displayQuestion();
 }
 
 function handleAnswerClick(event) {
@@ -150,6 +187,8 @@ function displayQuestion() {
   localStorage["questionHistory"] = JSON.stringify(questionHistory);
   localStorage["questionHistoryIndex"] = questionHistoryIndex;
   localStorage["passingMark"] = passingMark;
+  fileEl.style.display = "none"
+  buttons.style.display = "";
   setQuestion(question);
 }
 
@@ -197,74 +236,74 @@ function parseQuestions(fileText) {
   // Replace windows newlines and strip comments
   const contents = fileText.replace(/\r/g, "").replace(/^'.*$/gm, '').trim();
   const header = contents.match(/^\^.*$/m)[0];
-  const header_split = header.split("^");
-  const format_version = header_split[5].trim();
+  const headerSplit = header.split("^");
+  const formatVersion = headerSplit[5].trim();
 
-  if (format_version !== "V2") {
+  if (formatVersion !== "V2") {
     console.error("Questions are not in V2 format")
   }
 
   const questions = {};
 
-  questions.name = header_split[1].trim();
-  questions.num_questions = header_split[2].trim();
-  questions.pass_mark = header_split[3].trim();
+  questions.name = headerSplit[1].trim();
+  questions.numQuestions = headerSplit[2].trim();
+  questions.passMark = headerSplit[3].trim();
 
   questions.sections = [];
   // Split sections and remove header
   const sections = contents.split(/({\w+}) ([^\n]+)/gm).slice(1);
 
-  for (let section_idx = 0; section_idx < sections.length / 3; section_idx++) {
+  for (let sectionIdx = 0; sectionIdx < sections.length / 3; sectionIdx++) {
     const section = {};
 
-    const section_id = sections[section_idx * 3].replace(/[{}]/g, '');
-    const section_name = sections[section_idx * 3 + 1];
-    const section_body = sections[section_idx * 3 + 2];
+    const sectionId = sections[sectionIdx * 3].replace(/[{}]/g, '');
+    const sectionName = sections[sectionIdx * 3 + 1];
+    const sectionBody = sections[sectionIdx * 3 + 2];
 
-    section.id = section_id;
-    section.name = section_name;
+    section.id = sectionId;
+    section.name = sectionName;
     section.questions = [];
 
-    const body_lines = section_body.trim().split("\n").filter(line => line.length != 0);
-    for (let body_idx = 0; body_idx < body_lines.length / 7; body_idx++) {
+
+    const bodyLines = sectionBody.trim().split("\n").filter(line => line.length != 0);
+    for (let bodyIdx = 0; bodyIdx < bodyLines.length / 7; bodyIdx++) {
       const question = {};
 
-      const question_id = body_lines[body_idx * 7].split(/\s+/)[0];
-      const question_text = body_lines[body_idx * 7 + 1]
-      const answer_correct = body_lines[body_idx * 7 + 2]
-      const answer_other1 = body_lines[body_idx * 7 + 3]
-      const answer_other2 = body_lines[body_idx * 7 + 4]
-      const answer_other3 = body_lines[body_idx * 7 + 5]
+      const questionId = bodyLines[bodyIdx * 7].split(/\s+/)[0];
+      const questionText = bodyLines[bodyIdx * 7 + 1]
+      const answerCorrect = bodyLines[bodyIdx * 7 + 2]
+      const answerOther1 = bodyLines[bodyIdx * 7 + 3]
+      const answerOther2 = bodyLines[bodyIdx * 7 + 4]
+      const answerOther3 = bodyLines[bodyIdx * 7 + 5]
       // Strip "> "
-      const reason = body_lines[body_idx * 7 + 6].slice(2)
+      const reason = bodyLines[bodyIdx * 7 + 6].slice(2)
 
-      const id_parts = question_id.split("-");
-      const question_type = id_parts[0];
-      const question_section = parseInt(id_parts[1]);
-      const question_subsection = parseInt(id_parts[2]);
-      const question_variant = parseInt(id_parts[3]);
+      const idParts = questionId.split("-");
+      const questionType = idParts[0];
+      const questionSection = parseInt(idParts[1]);
+      const questionSubsection = parseInt(idParts[2]);
+      const questionVariant = parseInt(idParts[3]);
 
-      let answer_keys = ["a", "b", "c", "d"]
-      // Shuffle
-      answer_keys = answer_keys.sort(() => Math.random()-0.5);
-      const correct_key = answer_keys.shift()
-      const other1_key = answer_keys.shift()
-      const other2_key = answer_keys.shift()
-      const other3_key = answer_keys.shift()
+      let answerKeys = ["a", "b", "c", "d"]
+      shuffleArray(answerKeys);
+      const correctKey = answerKeys.shift()
+      const other1Key = answerKeys.shift()
+      const other2Key = answerKeys.shift()
+      const other3Key = answerKeys.shift()
 
-      question.id = question_id;
-      question.id_parts = {};
-      question.id_parts.type = question_type;
-      question.id_parts.section = question_section;
-      question.id_parts.subsection = question_subsection;
-      question.id_parts.variant = question_variant;
-      question.answer = correct_key;
-      question.text = question_text;
+      question.id = questionId;
+      question.idParts = {};
+      question.idParts.type = questionType;
+      question.idParts.section = questionSection;
+      question.idParts.subsection = questionSubsection;
+      question.idParts.variant = questionVariant;
+      question.answer = correctKey;
+      question.text = questionText;
       question.options = {};
-      question.options[correct_key] = answer_correct;
-      question.options[other1_key] = answer_other1;
-      question.options[other2_key] = answer_other2;
-      question.options[other3_key] = answer_other3;
+      question.options[correctKey] = answerCorrect;
+      question.options[other1Key] = answerOther1;
+      question.options[other2Key] = answerOther2;
+      question.options[other3Key] = answerOther3;
       question.selected = null;
       question.reason = reason;
 

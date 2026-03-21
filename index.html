@@ -11,11 +11,15 @@
       <h1>WebExHAMiner</h1>
       <h3>Radio Amateurs of Canada practice exam</h3>
       <div id="statusBar">
-        <div class="file">
-          <label for="fileInput">Load Questions</label>
-          <input id="fileInput" type="file" accept=".txt" autocomplete="off" />
-          <div class="file-extras">
-            <button id="reset" type="button">Reset</button>
+        <div class="controls">
+          <div id="file">
+            <label for="fileInput">Load Questions</label>
+            <input id="fileInput" type="file" accept=".txt" autocomplete="off" />
+          </div>
+          <div id="buttons">
+            <button id="restart">Restart Exam</button>
+            <button id="erase" type="button">Erase Data</button>
+            <button id="randomize" type="button">Randomize Order</button>
             <div id="fileError" class="file-error"></div>
           </div>
         </div>

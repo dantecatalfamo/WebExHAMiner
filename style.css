@@ -31,7 +31,13 @@ h3 {
   border-radius: 3px;
 }
 
-.file-extras {
+.controls {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#buttons {
   display: flex;
   gap: 5px;
 }
